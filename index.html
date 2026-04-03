@@ -65,7 +65,7 @@
             qrImg.src = qr.toDataURL();
             qrImg.onload = () => {
               const qrX = (canvas.width - qr.size) / 2;
-                const qrY = 350;
+                const qrY = 340;
                 ctx.drawImage(qrImg, qrX, qrY);
                 ctx.font = '500 35px "Segoe UI", Arial, sans-serif';
                 ctx.fillStyle = '#FFFFFF';

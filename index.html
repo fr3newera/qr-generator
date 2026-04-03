@@ -140,23 +140,6 @@
             box-shadow: 0 3px 12px rgba(0,0,0,0.4);
         }
 
-        .merchant-badge {
-            position: absolute;
-            bottom: -10px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: var(--surface-2);
-            border: 1px solid var(--border);
-            border-radius: 100px;
-            padding: 5px 16px;
-            font-size: 12px;
-            font-weight: 500;
-            color: var(--text-secondary);
-            white-space: nowrap;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-            display: none;
-        }
-
         .actions {
             width: 100%;
             display: flex;
@@ -318,7 +301,6 @@
             <div class="qr-frame">
                 <div class="skeleton" id="skeleton"></div>
                 <canvas id="qrCanvas"></canvas>
-                <div class="merchant-badge" id="merchantBadge"></div>
             </div>
 
             <div class="divider"></div>
@@ -368,12 +350,9 @@
         const canvas       = document.getElementById('qrCanvas');
         const ctx          = canvas.getContext('2d');
         const skeleton     = document.getElementById('skeleton');
-        const merchantBadge = document.getElementById('merchantBadge');
 
         skeleton.style.display = 'block';
         canvas.style.display   = 'none';
-
-        merchantBadge.textContent = nama;
 
         const backgroundImg = new Image();
         backgroundImg.src = 'baseqr.jpg';
@@ -402,11 +381,15 @@
                 ctx.fillStyle = '#FFFFFF';
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'alphabetic';
+                ctx.shadowColor = 'rgba(0,0,0,0.6)';
+                ctx.shadowBlur = 4;
+                ctx.shadowOffsetX = 1;
+                ctx.shadowOffsetY = 1;
                 ctx.fillText(nama, canvas.width / 2, canvas.height - 25);
+                ctx.shadowColor = 'transparent';
 
                 skeleton.style.display = 'none';
                 canvas.style.display   = 'block';
-                merchantBadge.style.display = 'block';
             };
         };
 
@@ -433,7 +416,6 @@
 
                 skeleton.style.display = 'none';
                 canvas.style.display   = 'block';
-                merchantBadge.style.display = 'block';
             };
         };
 

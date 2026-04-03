@@ -41,7 +41,7 @@
 
     <script>
         const urlParams = new URLSearchParams(window.location.search);
-        const qrData = urlParams.get('qrcode') || 'https://qr-generator.fr3newera.com';
+        const qrData = urlParams.get('qrcode') || 'https://qris-generator.fr3newera.com';
         const nama = urlParams.get('name') || 'Toko Default';
 
         const canvas = document.getElementById('qrCanvas');
@@ -65,7 +65,7 @@
             qrImg.src = qr.toDataURL();
             qrImg.onload = () => {
               const qrX = (canvas.width - qr.size) / 2;
-                const qrY = 320;
+                const qrY = 300;
                 ctx.drawImage(qrImg, qrX, qrY);
                 ctx.font = '500 35px "Segoe UI", Arial, sans-serif';
                 ctx.fillStyle = '#FFFFFF';

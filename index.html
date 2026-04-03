@@ -72,21 +72,6 @@
             margin-bottom: 28px;
         }
 
-        .brand-mark {
-            width: 32px;
-            height: 32px;
-            background: var(--accent);
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 13px;
-            font-weight: 700;
-            color: white;
-            letter-spacing: -0.5px;
-            flex-shrink: 0;
-        }
-
         .brand-text {
             font-size: 15px;
             font-weight: 600;
@@ -413,19 +398,11 @@
                 const qrY = 340;
                 ctx.drawImage(qrImg, qrX, qrY);
 
-                drawLogoOnQR(ctx, qrX, qrY, qr.size);
-
-                ctx.font = 'bold 36px "Outfit", "Segoe UI", Arial, sans-serif';
+                ctx.font = 'bold 36px "Segoe UI", Arial, sans-serif';
                 ctx.fillStyle = '#FFFFFF';
                 ctx.textAlign = 'center';
-                const textX = canvas.width / 2;
-                const textY = canvas.height - 25;
-                ctx.shadowColor = "rgba(0,0,0,0.6)";
-                ctx.shadowBlur = 4;
-                ctx.shadowOffsetX = 1;
-                ctx.shadowOffsetY = 1;
-                ctx.fillText(nama, textX, textY);
-                ctx.shadowColor = 'transparent';
+                ctx.textBaseline = 'alphabetic';
+                ctx.fillText(nama, canvas.width / 2, canvas.height - 25);
 
                 skeleton.style.display = 'none';
                 canvas.style.display   = 'block';
@@ -453,66 +430,12 @@
                 const qrX = 50;
                 const qrY = 50;
                 ctx.drawImage(qrImg, qrX, qrY);
-                drawLogoOnQR(ctx, qrX, qrY, qr.size);
 
                 skeleton.style.display = 'none';
                 canvas.style.display   = 'block';
                 merchantBadge.style.display = 'block';
             };
         };
-
-        function drawLogoOnQR(ctx, qrX, qrY, qrSize) {
-            const logoSize  = qrSize * 0.18;
-            const logoX     = qrX + (qrSize - logoSize) / 2;
-            const logoY     = qrY + (qrSize - logoSize) / 2;
-            const radius    = logoSize * 0.18;
-
-            ctx.save();
-
-            ctx.shadowColor   = 'rgba(0,0,0,0.25)';
-            ctx.shadowBlur    = 10;
-            ctx.shadowOffsetX = 0;
-            ctx.shadowOffsetY = 2;
-
-            roundRect(ctx, logoX, logoY, logoSize, logoSize, radius);
-            ctx.fillStyle = '#ffffff';
-            ctx.fill();
-
-            ctx.shadowColor = 'transparent';
-
-            roundRect(ctx, logoX, logoY, logoSize, logoSize, radius);
-            ctx.strokeStyle = 'rgba(0,0,0,0.06)';
-            ctx.lineWidth   = 2;
-            ctx.stroke();
-
-            const innerPad = logoSize * 0.12;
-            roundRect(ctx, logoX + innerPad, logoY + innerPad, logoSize - innerPad * 2, logoSize - innerPad * 2, radius * 0.6);
-            ctx.fillStyle = '#1a56db';
-            ctx.fill();
-
-            const fontSize = logoSize * 0.32;
-            ctx.font        = `bold ${fontSize}px "Outfit", "Segoe UI", Arial, sans-serif`;
-            ctx.fillStyle   = '#ffffff';
-            ctx.textAlign   = 'center';
-            ctx.textBaseline = 'middle';
-            ctx.fillText('FR3', logoX + logoSize / 2, logoY + logoSize / 2);
-
-            ctx.restore();
-        }
-
-        function roundRect(ctx, x, y, w, h, r) {
-            ctx.beginPath();
-            ctx.moveTo(x + r, y);
-            ctx.lineTo(x + w - r, y);
-            ctx.quadraticCurveTo(x + w, y, x + w, y + r);
-            ctx.lineTo(x + w, y + h - r);
-            ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
-            ctx.lineTo(x + r, y + h);
-            ctx.quadraticCurveTo(x, y + h, x, y + h - r);
-            ctx.lineTo(x, y + r);
-            ctx.quadraticCurveTo(x, y, x + r, y);
-            ctx.closePath();
-        }
 
         document.getElementById('downloadBtn').addEventListener('click', function () {
             try {

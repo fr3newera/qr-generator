@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FR3QRIS SDK — Dokumentasi & Demo</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --bg: #07090f;
+            --surface: #0d1117;
+            --surface-2: #161b22;
+            --border: rgba(255,255,255,0.07);
+            --text-primary: #f0f4f8;
+            --text-secondary: #8b96a5;
+            --text-muted: #4a5568;
+            --accent: #3b82f6;
+            --accent-dim: rgba(59,130,246,0.15);
+            --green: #22c55e;
+            --green-dim: rgba(34,197,94,0.12);
+            --orange: #f97316;
+            --orange-dim: rgba(249,115,22,0.12);
+            --mono: 'JetBrains Mono', monospace;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: var(--bg);
+            color: var(--text-primary);
+            min-height: 100vh;
+            padding: 60px 24px;
+        }
+
+        .page {
+            max-width: 820px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 48px;
+        }
+
+        .header { border-bottom: 1px solid var(--border); padding-bottom: 32px; }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: var(--accent-dim);
+            border: 1px solid rgba(59,130,246,0.25);
+            border-radius: 100px;
+            padding: 4px 12px;
+            font-size: 12px;
+            font-weight: 500;
+            color: #60a5fa;
+            letter-spacing: 0.3px;
+            margin-bottom: 16px;
+        }
+
+        .header h1 {
+            font-size: 32px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            margin-bottom: 10px;
+        }
+
+        .header h1 span { color: var(--accent); }
+
+        .header p {
+            font-size: 15px;
+            color: var(--text-secondary);
+            line-height: 1.6;
+            max-width: 560px;
+        }
+
+        .section-title {
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 1.2px;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-bottom: 16px;
+        }
+
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            overflow: hidden;
+        }
+
+        .card-body { padding: 24px; }
+
+        .method-block { display: flex; flex-direction: column; gap: 24px; }
+
+        .method {
+            background: var(--surface-2);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .method-head {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 20px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .method-tag {
+            font-family: var(--mono);
+            font-size: 12px;
+            font-weight: 500;
+            padding: 3px 8px;
+            border-radius: 6px;
+        }
+
+        .tag-fn  { background: var(--accent-dim);  color: #60a5fa; }
+        .tag-evt { background: var(--green-dim);   color: #4ade80; }
+        .tag-prm { background: var(--orange-dim);  color: #fb923c; }
+
+        .method-name {
+            font-family: var(--mono);
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .method-desc {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-left: auto;
+        }
+
+        .code-block {
+            background: #0a0d14;
+            padding: 20px 24px;
+            overflow-x: auto;
+        }
+
+        .code-block pre {
+            font-family: var(--mono);
+            font-size: 13px;
+            line-height: 1.7;
+            color: #c9d1d9;
+            white-space: pre;
+        }
+
+        .c-comment { color: #484f58; }
+        .c-key     { color: #79c0ff; }
+        .c-str     { color: #a5d6ff; }
+        .c-fn      { color: #d2a8ff; }
+        .c-kw      { color: #ff7b72; }
+        .c-num     { color: #f2cc60; }
+
+        .param-table { width: 100%; border-collapse: collapse; }
+        .param-table th, .param-table td {
+            padding: 10px 16px;
+            text-align: left;
+            font-size: 13px;
+            border-bottom: 1px solid var(--border);
+        }
+        .param-table th {
+            color: var(--text-muted);
+            font-weight: 500;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .param-table td:first-child {
+            font-family: var(--mono);
+            color: #fb923c;
+        }
+        .param-table td:nth-child(2) {
+            font-family: var(--mono);
+            color: #60a5fa;
+            font-size: 12px;
+        }
+        .param-table tr:last-child td { border-bottom: none; }
+
+        .demo-section { display: flex; flex-direction: column; gap: 20px; }
+
+        .demo-controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .field label {
+            display: block;
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            margin-bottom: 6px;
+            letter-spacing: 0.3px;
+        }
+
+        .field input {
+            width: 100%;
+            background: var(--surface-2);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 10px 14px;
+            font-family: var(--mono);
+            font-size: 13px;
+            color: var(--text-primary);
+            outline: none;
+            transition: border-color 0.15s;
+        }
+
+        .field input:focus { border-color: var(--accent); }
+
+        .demo-btn-row { display: flex; gap: 10px; }
+
+        .demo-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 11px 20px;
+            border-radius: 10px;
+            font-family: 'Outfit', sans-serif;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            border: none;
+            transition: all 0.15s ease;
+        }
+
+        .demo-btn-primary {
+            background: var(--accent);
+            color: white;
+        }
+        .demo-btn-primary:hover { background: #2563eb; }
+
+        .demo-btn-ghost {
+            background: var(--surface-2);
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+        }
+        .demo-btn-ghost:hover { border-color: rgba(255,255,255,0.14); color: var(--text-primary); }
+
+        #demoPreview {
+            background: var(--surface-2);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            min-height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            padding: 0;
+        }
+
+        #demoPreview iframe {
+            width: 100%;
+            border: none;
+            display: block;
+            aspect-ratio: 1 / 1;
+        }
+
+        #demoPreview .placeholder {
+            color: var(--text-muted);
+            font-size: 13px;
+            text-align: center;
+            padding: 40px;
+        }
+
+        .status-bar {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 14px;
+            background: var(--surface-2);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 13px;
+            color: var(--text-secondary);
+            min-height: 42px;
+        }
+
+        .status-dot-ui {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: var(--text-muted);
+            flex-shrink: 0;
+        }
+        .status-dot-ui.ready   { background: var(--green); }
+        .status-dot-ui.loading { background: var(--orange); animation: blink 1s ease infinite; }
+        .status-dot-ui.error   { background: #ef4444; }
+
+        @keyframes blink {
+            0%,100% { opacity: 1; }
+            50%      { opacity: 0.3; }
+        }
+
+        .footer-note {
+            text-align: center;
+            font-size: 12.5px;
+            color: var(--text-muted);
+        }
+        .footer-note a { color: var(--text-secondary); text-decoration: none; }
+        .footer-note a:hover { color: var(--accent); }
+
+        @media (max-width: 560px) {
+            .demo-controls { grid-template-columns: 1fr; }
+            body { padding: 32px 16px; }
+        }
+    </style>
+</head>
+<body>
+<div class="page">
+
+    <div class="header">
+        <div class="badge">SDK v1.0</div>
+        <h1>FR3<span>QRIS</span> SDK</h1>
+        <p>Integrasikan QRIS Generator FR3 NEWERA ke website manapun hanya dengan beberapa baris kode. Mendukung embed iframe, download otomatis, dan pengambilan data URL gambar.</p>
+    </div>
+
+    <div>
+        <p class="section-title">Instalasi</p>
+        <div class="card">
+            <div class="code-block">
+                <pre><span class="c-comment">&lt;!-- Tambahkan tag script ini di website Anda --&gt;</span>
+<span class="c-key">&lt;script</span> <span class="c-fn">src</span>=<span class="c-str">"https://qris-generator.fr3newera.com/qris-sdk.js"</span><span class="c-key">&gt;&lt;/script&gt;</span></pre>
+            </div>
+        </div>
+    </div>
+
+    <div>
+        <p class="section-title">Referensi API</p>
+        <div class="method-block">
+
+            <div class="method">
+                <div class="method-head">
+                    <span class="method-tag tag-fn">function</span>
+                    <span class="method-name">FR3QRIS.generate(options)</span>
+                    <span class="method-desc">Embed QR ke elemen HTML</span>
+                </div>
+                <div class="code-block">
+                    <pre><span class="c-kw">const</span> qr = FR3QRIS.<span class="c-fn">generate</span>({
+  <span class="c-key">qrcode</span>:  <span class="c-str">"00020101..."</span>,        <span class="c-comment">// String QRIS / URL</span>
+  <span class="c-key">name</span>:    <span class="c-str">"Nama Toko Anda"</span>,   <span class="c-comment">// Nama merchant</span>
+  <span class="c-key">target</span>:  <span class="c-str">"#qris-container"</span>,  <span class="c-comment">// CSS selector atau element</span>
+  <span class="c-key">width</span>:   <span class="c-str">"320px"</span>,            <span class="c-comment">// Lebar iframe (opsional, default 100%)</span>
+  <span class="c-key">onReady</span>: <span class="c-fn">function</span>(res) {   <span class="c-comment">// Callback saat selesai render</span>
+    console.<span class="c-fn">log</span>(res.dataUrl);  <span class="c-comment">// Data URL gambar PNG</span>
+  }
+});
+
+qr.<span class="c-fn">download</span>();  <span class="c-comment">// Download gambar QRIS</span>
+qr.<span class="c-fn">destroy</span>();  <span class="c-comment">// Hapus iframe dari DOM</span></pre>
+                </div>
+            </div>
+
+            <div class="method">
+                <div class="method-head">
+                    <span class="method-tag tag-fn">function</span>
+                    <span class="method-name">FR3QRIS.download(options)</span>
+                    <span class="method-desc">Download langsung tanpa embed</span>
+                </div>
+                <div class="code-block">
+                    <pre>FR3QRIS.<span class="c-fn">download</span>({
+  <span class="c-key">qrcode</span>: <span class="c-str">"00020101..."</span>,
+  <span class="c-key">name</span>:   <span class="c-str">"Nama Toko"</span>,
+  <span class="c-key">onDone</span>: <span class="c-fn">function</span>() { console.<span class="c-fn">log</span>(<span class="c-str">"Selesai!"</span>); }
+});</pre>
+                </div>
+            </div>
+
+            <div class="method">
+                <div class="method-head">
+                    <span class="method-tag tag-fn">promise</span>
+                    <span class="method-name">FR3QRIS.getDataUrl(options)</span>
+                    <span class="method-desc">Ambil data URL gambar (Promise)</span>
+                </div>
+                <div class="code-block">
+                    <pre>FR3QRIS.<span class="c-fn">getDataUrl</span>({ <span class="c-key">qrcode</span>: <span class="c-str">"..."</span>, <span class="c-key">name</span>: <span class="c-str">"..."</span> })
+  .<span class="c-fn">then</span>(<span class="c-fn">function</span>(dataUrl) {
+    <span class="c-kw">const</span> img = document.<span class="c-fn">createElement</span>(<span class="c-str">"img"</span>);
+    img.src = dataUrl;
+    document.body.<span class="c-fn">appendChild</span>(img);
+  })
+  .<span class="c-fn">catch</span>(<span class="c-fn">function</span>(err) { console.<span class="c-fn">error</span>(err); });</pre>
+                </div>
+            </div>
+
+            <div class="method">
+                <div class="method-head">
+                    <span class="method-tag tag-prm">iframe</span>
+                    <span class="method-name">Embed langsung via URL</span>
+                    <span class="method-desc">Tanpa SDK, pakai iframe manual</span>
+                </div>
+                <div class="code-block">
+                    <pre><span class="c-key">&lt;iframe</span>
+  <span class="c-fn">src</span>=<span class="c-str">"https://qris-generator.fr3newera.com/?embed=1
+       &amp;qrcode=00020101...
+       &amp;name=Nama+Toko"</span>
+  <span class="c-fn">width</span>=<span class="c-str">"320"</span>
+  <span class="c-fn">style</span>=<span class="c-str">"border:none; aspect-ratio:1/1;"</span>
+<span class="c-key">&gt;&lt;/iframe&gt;</span></pre>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div>
+        <p class="section-title">Demo Interaktif</p>
+        <div class="card">
+            <div class="card-body demo-section">
+                <div class="demo-controls">
+                    <div class="field" style="grid-column: 1 / -1;">
+                        <label>QRCODE (String QRIS atau URL)</label>
+                        <input type="text" id="demoQrcode" value="https://qris-generator.fr3newera.com" placeholder="Masukkan string QRIS...">
+                    </div>
+                    <div class="field">
+                        <label>NAME (Nama Merchant)</label>
+                        <input type="text" id="demoName" value="Toko FR3 NEWERA" placeholder="Nama toko...">
+                    </div>
+                    <div class="field">
+                        <label>WIDTH (Lebar preview)</label>
+                        <input type="text" id="demoWidth" value="100%" placeholder="100% atau 320px...">
+                    </div>
+                </div>
+
+                <div class="demo-btn-row">
+                    <button class="demo-btn demo-btn-primary" id="demoGenBtn">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                        Generate Preview
+                    </button>
+                    <button class="demo-btn demo-btn-ghost" id="demoDownBtn" disabled>
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                        Download
+                    </button>
+                </div>
+
+                <div class="status-bar">
+                    <div class="status-dot-ui" id="statusDot"></div>
+                    <span id="statusText">Siap. Tekan "Generate Preview" untuk memulai.</span>
+                </div>
+
+                <div id="demoPreview">
+                    <div class="placeholder">Preview QRIS akan muncul di sini.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer-note">
+        <p>Powered by <a href="https://fr3newera.com" target="_blank">FR3 NEWERA</a> &mdash; QRIS Generator SDK &copy; 2026</p>
+    </div>
+
+</div>
+
+<script src="https://qris-generator.fr3newera.com/qris-sdk.js"></script>
+<script>
+    var currentQR = null;
+
+    var genBtn   = document.getElementById('demoGenBtn');
+    var downBtn  = document.getElementById('demoDownBtn');
+    var preview  = document.getElementById('demoPreview');
+    var statusD  = document.getElementById('statusDot');
+    var statusT  = document.getElementById('statusText');
+
+    function setStatus(state, msg) {
+        statusD.className = 'status-dot-ui ' + state;
+        statusT.textContent = msg;
+    }
+
+    genBtn.addEventListener('click', function () {
+        var qrcode = document.getElementById('demoQrcode').value.trim();
+        var name   = document.getElementById('demoName').value.trim();
+        var width  = document.getElementById('demoWidth').value.trim() || '100%';
+
+        if (!qrcode || !name) {
+            setStatus('error', 'QRCODE dan NAME tidak boleh kosong.');
+            return;
+        }
+
+        if (currentQR) { currentQR.destroy(); currentQR = null; }
+        preview.innerHTML = '';
+        downBtn.disabled = true;
+        setStatus('loading', 'Merender QRIS...');
+
+        currentQR = FR3QRIS.generate({
+            qrcode:  qrcode,
+            name:    name,
+            target:  preview,
+            width:   width,
+            onReady: function (res) {
+                setStatus('ready', 'QRIS berhasil dirender. Siap didownload.');
+                downBtn.disabled = false;
+            },
+            onError: function (msg) {
+                setStatus('error', 'Error: ' + msg);
+            }
+        });
+    });
+
+    downBtn.addEventListener('click', function () {
+        if (currentQR) currentQR.download();
+    });
+</script>
+</body>
+</html>

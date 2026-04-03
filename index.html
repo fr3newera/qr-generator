@@ -283,6 +283,43 @@
             body { padding: 24px 16px; }
             .card { padding: 22px 18px; }
         }
+
+        body.embed-mode {
+            background: transparent;
+            min-height: unset;
+            padding: 0;
+            justify-content: flex-start;
+        }
+
+        body.embed-mode .wrapper {
+            max-width: 100%;
+        }
+
+        body.embed-mode .brand,
+        body.embed-mode .card-header,
+        body.embed-mode .divider,
+        body.embed-mode .actions,
+        body.embed-mode .footer-section {
+            display: none;
+        }
+
+        body.embed-mode .card {
+            background: transparent;
+            border: none;
+            box-shadow: none;
+            padding: 0;
+            border-radius: 0;
+        }
+
+        body.embed-mode .qr-frame {
+            max-width: 100%;
+        }
+
+        body.embed-mode .qr-frame canvas {
+            border-radius: 0;
+            box-shadow: none;
+            cursor: default;
+        }
     </style>
 </head>
 <body>
@@ -340,99 +377,128 @@
 
     <script>
         const urlParams = new URLSearchParams(window.location.search);
-        if (!urlParams.has('qrcode') || !urlParams.has('name')) {
+        const isEmbed   = urlParams.get('embed') === '1';
+
+        if (isEmbed) {
+            document.body.classList.add('embed-mode');
+        }
+
+        if (!isEmbed && (!urlParams.has('qrcode') || !urlParams.has('name'))) {
             window.location.replace('?qrcode=https://qris-generator.fr3newera.com&name=Toko+FR3+NEWERA');
         }
 
-        const qrData = urlParams.get('qrcode');
-        const nama   = urlParams.get('name');
+        const qrData = urlParams.get('qrcode') || 'https://qris-generator.fr3newera.com';
+        const nama   = urlParams.get('name')   || 'Toko FR3 NEWERA';
+        const iframeId = urlParams.get('_iid') || null;
 
-        const canvas       = document.getElementById('qrCanvas');
-        const ctx          = canvas.getContext('2d');
-        const skeleton     = document.getElementById('skeleton');
+        const canvas   = document.getElementById('qrCanvas');
+        const ctx      = canvas.getContext('2d');
+        const skeleton = document.getElementById('skeleton');
 
         skeleton.style.display = 'block';
         canvas.style.display   = 'none';
 
+        function renderQR(bgImg) {
+            if (bgImg) {
+                canvas.width  = bgImg.width;
+                canvas.height = bgImg.height;
+                ctx.drawImage(bgImg, 0, 0);
+            } else {
+                canvas.width  = 700;
+                canvas.height = 700;
+                ctx.fillStyle = '#f8fafc';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+            }
+
+            const qr = new QRious({
+                value: qrData,
+                size: 600,
+                level: 'H',
+                background: 'white',
+                foreground: 'black'
+            });
+
+            const qrImg = new Image();
+            qrImg.src = qr.toDataURL();
+            qrImg.onload = () => {
+                const qrX = bgImg ? (canvas.width - qr.size) / 2 : 50;
+                const qrY = bgImg ? 340 : 50;
+                ctx.drawImage(qrImg, qrX, qrY);
+
+                if (bgImg) {
+                    ctx.font           = 'bold 36px "Segoe UI", Arial, sans-serif';
+                    ctx.fillStyle      = '#FFFFFF';
+                    ctx.textAlign      = 'center';
+                    ctx.textBaseline   = 'alphabetic';
+                    ctx.shadowColor    = 'rgba(0,0,0,0.6)';
+                    ctx.shadowBlur     = 4;
+                    ctx.shadowOffsetX  = 1;
+                    ctx.shadowOffsetY  = 1;
+                    ctx.fillText(nama, canvas.width / 2, canvas.height - 20);
+                    ctx.shadowColor    = 'transparent';
+                }
+
+                skeleton.style.display = 'none';
+                canvas.style.display   = 'block';
+
+                if (isEmbed) {
+                    try {
+                        const dataUrl = canvas.toDataURL('image/png');
+                        window.parent.postMessage({
+                            type:     'fr3qris:ready',
+                            dataUrl:  dataUrl,
+                            nama:     nama,
+                            iframeId: iframeId
+                        }, '*');
+                    } catch (e) {
+                        window.parent.postMessage({
+                            type:     'fr3qris:error',
+                            message:  e.message,
+                            iframeId: iframeId
+                        }, '*');
+                    }
+                }
+            };
+        }
+
         const backgroundImg = new Image();
+        backgroundImg.crossOrigin = 'anonymous';
         backgroundImg.src = 'baseqr.jpg';
+        backgroundImg.onload  = () => renderQR(backgroundImg);
+        backgroundImg.onerror = () => renderQR(null);
 
-        backgroundImg.onload = () => {
-            canvas.width  = backgroundImg.width;
-            canvas.height = backgroundImg.height;
-            ctx.drawImage(backgroundImg, 0, 0);
-
-            const qr = new QRious({
-                value: qrData,
-                size: 600,
-                level: 'H',
-                background: 'white',
-                foreground: 'black'
-            });
-
-            const qrImg = new Image();
-            qrImg.src = qr.toDataURL();
-            qrImg.onload = () => {
-                const qrX = (canvas.width - qr.size) / 2;
-                const qrY = 340;
-                ctx.drawImage(qrImg, qrX, qrY);
-
-                ctx.font = 'bold 36px "Segoe UI", Arial, sans-serif';
-                ctx.fillStyle = '#FFFFFF';
-                ctx.textAlign = 'center';
-                ctx.textBaseline = 'alphabetic';
-                ctx.shadowColor = 'rgba(0,0,0,0.6)';
-                ctx.shadowBlur = 4;
-                ctx.shadowOffsetX = 1;
-                ctx.shadowOffsetY = 1;
-                ctx.fillText(nama, canvas.width / 2, canvas.height - 20);
-                ctx.shadowColor = 'transparent';
-
-                skeleton.style.display = 'none';
-                canvas.style.display   = 'block';
-            };
-        };
-
-        backgroundImg.onerror = () => {
-            canvas.width  = 700;
-            canvas.height = 700;
-            ctx.fillStyle = '#f8fafc';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-            const qr = new QRious({
-                value: qrData,
-                size: 600,
-                level: 'H',
-                background: 'white',
-                foreground: 'black'
-            });
-
-            const qrImg = new Image();
-            qrImg.src = qr.toDataURL();
-            qrImg.onload = () => {
-                const qrX = 50;
-                const qrY = 50;
-                ctx.drawImage(qrImg, qrX, qrY);
-
-                skeleton.style.display = 'none';
-                canvas.style.display   = 'block';
-            };
-        };
-
-        document.getElementById('downloadBtn').addEventListener('click', function () {
-            try {
-                const imageURL = canvas.toDataURL('image/png');
-                const link = document.createElement('a');
-                link.href = imageURL;
-                link.download = `QRIS-${nama.replace(/\s+/g, '-')}.png`;
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-            } catch (err) {
-                alert('Gagal mendownload. Pastikan file baseqr.jpg berada di server/domain yang sama.');
-                console.error(err);
+        window.addEventListener('message', function(e) {
+            if (e.data && e.data.type === 'fr3qris:download') {
+                try {
+                    const imageURL = canvas.toDataURL('image/png');
+                    const link = document.createElement('a');
+                    link.href = imageURL;
+                    link.download = `QRIS-${nama.replace(/\s+/g, '-')}.png`;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                } catch (err) {
+                    console.error(err);
+                }
             }
         });
+
+        if (!isEmbed) {
+            document.getElementById('downloadBtn').addEventListener('click', function () {
+                try {
+                    const imageURL = canvas.toDataURL('image/png');
+                    const link = document.createElement('a');
+                    link.href = imageURL;
+                    link.download = `QRIS-${nama.replace(/\s+/g, '-')}.png`;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                } catch (err) {
+                    alert('Gagal mendownload. Pastikan file baseqr.jpg berada di server/domain yang sama.');
+                    console.error(err);
+                }
+            });
+        }
     </script>
 </body>
 </html>

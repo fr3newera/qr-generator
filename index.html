@@ -4,146 +4,371 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Custom QRIS Generator | By FR3 NEWERA</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
     <style>
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --bg: #07090f;
+            --surface: #0d1117;
+            --surface-2: #161b22;
+            --border: rgba(255,255,255,0.07);
+            --border-hover: rgba(255,255,255,0.14);
+            --text-primary: #f0f4f8;
+            --text-secondary: #8b96a5;
+            --text-muted: #4a5568;
+            --accent: #3b82f6;
+            --accent-glow: rgba(59,130,246,0.25);
+            --accent-hover: #2563eb;
+            --green: #22c55e;
+            --green-glow: rgba(34,197,94,0.2);
+        }
+
+        html, body {
+            min-height: 100%;
+        }
+
         body {
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             min-height: 100vh;
-            margin: 0;
-            padding: 20px;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 40px 20px;
+            font-family: 'Outfit', sans-serif;
+            color: var(--text-primary);
+            background-color: var(--bg);
+            background-image:
+                radial-gradient(ellipse 80% 50% at 50% -20%, rgba(59,130,246,0.08) 0%, transparent 60%),
+                radial-gradient(ellipse 60% 40% at 80% 80%, rgba(34,197,94,0.04) 0%, transparent 50%);
+        }
+
+        .wrapper {
+            width: 100%;
+            max-width: 440px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0;
+            animation: fadeUp 0.6s cubic-bezier(0.16,1,0.3,1) both;
+        }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(24px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 28px;
+        }
+
+        .brand-mark {
+            width: 32px;
+            height: 32px;
+            background: var(--accent);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            font-weight: 700;
             color: white;
-            background: linear-gradient(-45deg, #0f172a, #1e293b, #000000, #334155);
-            background-size: 400% 400%;
-            animation: gradientBG 15s ease infinite;
-            box-sizing: border-box;
+            letter-spacing: -0.5px;
+            flex-shrink: 0;
         }
 
-        @keyframes gradientBG {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
+        .brand-text {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            letter-spacing: 0.3px;
         }
 
-        h2 {
-            margin-bottom: 5px;
+        .brand-text span {
+            color: var(--text-primary);
+        }
+
+        .card {
+            width: 100%;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 28px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 24px;
+            box-shadow:
+                0 0 0 1px rgba(255,255,255,0.03),
+                0 20px 60px rgba(0,0,0,0.5),
+                inset 0 1px 0 rgba(255,255,255,0.06);
+        }
+
+        .card-header {
             text-align: center;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
-            letter-spacing: 1px;
+            width: 100%;
         }
 
-        p {
-            margin-bottom: 30px;
-            color: #cbd5e1;
-            text-align: center;
-            font-size: 14px;
+        .card-header h1 {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--text-primary);
+            letter-spacing: -0.3px;
+            margin-bottom: 4px;
         }
 
-        canvas {
-            max-width: 100%;
-            width: 380px;
+        .card-header p {
+            font-size: 13.5px;
+            color: var(--text-secondary);
+            font-weight: 400;
+        }
+
+        .qr-frame {
+            position: relative;
+            width: 100%;
+            max-width: 360px;
+        }
+
+        .qr-frame canvas {
+            width: 100%;
             height: auto;
-            border-radius: 15px;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.6);
-            transition: transform 0.15s ease, box-shadow 0.15s ease;
+            border-radius: 14px;
+            display: block;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.6);
             cursor: pointer;
+            transition: transform 0.18s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.18s ease;
             -webkit-tap-highlight-color: transparent;
         }
 
-        canvas:active {
-            transform: scale(0.96);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.4);
+        .qr-frame canvas:active {
+            transform: scale(0.97);
+            box-shadow: 0 3px 12px rgba(0,0,0,0.4);
         }
 
-        .button-group {
+        .merchant-badge {
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--surface-2);
+            border: 1px solid var(--border);
+            border-radius: 100px;
+            padding: 5px 16px;
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            white-space: nowrap;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+            display: none;
+        }
+
+        .actions {
+            width: 100%;
             display: flex;
             flex-direction: column;
-            gap: 12px;
-            margin-top: 30px;
-            width: 100%;
-            max-width: 380px;
-        }
-
-        .button-row {
-            display: flex;
-            gap: 12px;
-            width: 100%;
+            gap: 10px;
+            padding-top: 8px;
         }
 
         .btn {
-            flex: 1;
-            padding: 14px 20px;
-            border: none;
-            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 9px;
+            width: 100%;
+            padding: 13px 20px;
+            border-radius: 12px;
+            font-family: 'Outfit', sans-serif;
             font-size: 14px;
-            font-weight: 600;
-            text-align: center;
-            text-decoration: none;
+            font-weight: 500;
             cursor: pointer;
-            transition: all 0.3s ease;
-            box-sizing: border-box;
+            text-decoration: none;
+            border: none;
+            transition: all 0.18s cubic-bezier(0.4,0,0.2,1);
+            position: relative;
+            overflow: hidden;
+            letter-spacing: 0.1px;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .btn::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: rgba(255,255,255,0);
+            transition: background 0.15s ease;
+            border-radius: inherit;
+        }
+
+        .btn:hover::after {
+            background: rgba(255,255,255,0.05);
         }
 
         .btn:active {
-            transform: translateY(3px);
+            transform: translateY(2px) scale(0.99);
         }
 
-        .btn-download {
-            background-color: #2563eb;
+        .btn-primary {
+            background: var(--accent);
             color: white;
-            box-shadow: 0 4px 15px rgba(37, 99, 235, 0.4);
+            box-shadow: 0 4px 20px var(--accent-glow), inset 0 1px 0 rgba(255,255,255,0.15);
+        }
+
+        .btn-primary:hover {
+            background: var(--accent-hover);
+            box-shadow: 0 6px 28px rgba(59,130,246,0.35);
+        }
+
+        .btn-row {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-ghost {
+            background: var(--surface-2);
+            color: var(--text-secondary);
+            border: 1px solid var(--border);
+            flex: 1;
+        }
+
+        .btn-ghost:hover {
+            border-color: var(--border-hover);
+            color: var(--text-primary);
+        }
+
+        .btn svg {
+            flex-shrink: 0;
+            opacity: 0.9;
+        }
+
+        .divider {
             width: 100%;
-        }
-        .btn-download:hover {
-            background-color: #1d4ed8;
-        }
-
-        .btn-outline {
-            background-color: rgba(255, 255, 255, 0.05);
-            border: 1px solid #475569;
-            color: #e2e8f0;
-            backdrop-filter: blur(5px);
-        }
-        .btn-outline:hover {
-            border-color: #94a3b8;
-            background-color: rgba(255, 255, 255, 0.1);
+            height: 1px;
+            background: var(--border);
         }
 
-        .footer {
-            margin-top: 50px;
-            font-size: 13px;
-            color: #64748b;
+        .footer-section {
             text-align: center;
-            letter-spacing: 0.5px;
+            padding-top: 8px;
         }
-        
-        .footer span {
-            color: #60a5fa;
-            font-weight: bold;
+
+        .footer-section p {
+            font-size: 12.5px;
+            color: var(--text-muted);
+            letter-spacing: 0.2px;
+        }
+
+        .footer-section a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.15s ease;
+        }
+
+        .footer-section a:hover {
+            color: var(--accent);
+        }
+
+        .status-dot {
+            display: inline-block;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--green);
+            margin-right: 6px;
+            vertical-align: middle;
+            box-shadow: 0 0 0 3px var(--green-glow);
+            animation: pulse 2.5s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 0 0 3px var(--green-glow); }
+            50%       { box-shadow: 0 0 0 6px rgba(34,197,94,0.08); }
+        }
+
+        .skeleton {
+            width: 100%;
+            aspect-ratio: 1;
+            border-radius: 14px;
+            background: linear-gradient(90deg, var(--surface-2) 25%, rgba(255,255,255,0.04) 50%, var(--surface-2) 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+            display: none;
+        }
+
+        @keyframes shimmer {
+            0%   { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        @media (max-width: 480px) {
+            body { padding: 24px 16px; }
+            .card { padding: 22px 18px; }
         }
     </style>
 </head>
 <body>
 
-    <h2>QRIS Generator Visualizer</h2>
-    <p>Ubah parameter URL di atas untuk melihat hasilnya.</p>
-    
-    <canvas id="qrCanvas" title="Tekan/Klik gambar untuk melihat efek responsif"></canvas>
-
-    <div class="button-group">
-        <button class="btn btn-download" id="downloadBtn">⬇ Download QRIS</button>
-        
-        <div class="button-row">
-            <a href="https://github.com/fr3newera/qr-generator/" class="btn btn-outline" target="_blank">Source Code?</a>
-            <a href="https://wa.me/62882008771871" class="btn btn-outline" target="_blank">Contact Dev?</a>
+    <div class="wrapper">
+        <div class="brand">
+            <div class="brand-text"><span>FR3 NEWERA</span> · QRIS Generator</div>
         </div>
-    </div>
 
-    <div class="footer">
-        &copy; 2026 <span>FR3 NEWERA</span>. All rights reserved.
+        <div class="card">
+            <div class="card-header">
+                <h1>QRIS Visualizer</h1>
+                <p><span class="status-dot"></span>Preview real-time dari parameter URL</p>
+            </div>
+
+            <div class="qr-frame">
+                <div class="skeleton" id="skeleton"></div>
+                <canvas id="qrCanvas"></canvas>
+                <div class="merchant-badge" id="merchantBadge"></div>
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="actions">
+                <button class="btn btn-primary" id="downloadBtn">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                        <polyline points="7 10 12 15 17 10"/>
+                        <line x1="12" y1="15" x2="12" y2="3"/>
+                    </svg>
+                    Download QRIS
+                </button>
+
+                <div class="btn-row">
+                    <a href="https://github.com/fr3newera/qr-generator/" class="btn btn-ghost" target="_blank" rel="noopener">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/>
+                        </svg>
+                        Source Code
+                    </a>
+
+                    <a href="https://wa.me/62882008771871" class="btn btn-ghost" target="_blank" rel="noopener">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/>
+                        </svg>
+                        Contact Developer
+                    </a>
+                </div>
+            </div>
+
+            <div class="footer-section">
+                <p>&copy; 2026 <a href="https://fr3newera.com" target="_blank" rel="noopener">FR3 NEWERA</a>. All rights reserved.</p>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -153,17 +378,26 @@
         }
 
         const qrData = urlParams.get('qrcode');
-        const nama = urlParams.get('name');
+        const nama   = urlParams.get('name');
 
-        const canvas = document.getElementById('qrCanvas');
-        const ctx = canvas.getContext('2d');
+        const canvas       = document.getElementById('qrCanvas');
+        const ctx          = canvas.getContext('2d');
+        const skeleton     = document.getElementById('skeleton');
+        const merchantBadge = document.getElementById('merchantBadge');
+
+        skeleton.style.display = 'block';
+        canvas.style.display   = 'none';
+
+        merchantBadge.textContent = nama;
+
         const backgroundImg = new Image();
-        backgroundImg.src = 'baseqr.jpg'; 
-        
+        backgroundImg.src = 'baseqr.jpg';
+
         backgroundImg.onload = () => {
-            canvas.width = backgroundImg.width;
+            canvas.width  = backgroundImg.width;
             canvas.height = backgroundImg.height;
             ctx.drawImage(backgroundImg, 0, 0);
+
             const qr = new QRious({
                 value: qrData,
                 size: 600,
@@ -178,33 +412,119 @@
                 const qrX = (canvas.width - qr.size) / 2;
                 const qrY = 340;
                 ctx.drawImage(qrImg, qrX, qrY);
-                ctx.font = 'bold 36px "Segoe UI", Arial, sans-serif';
+
+                drawLogoOnQR(ctx, qrX, qrY, qr.size);
+
+                ctx.font = 'bold 36px "Outfit", "Segoe UI", Arial, sans-serif';
                 ctx.fillStyle = '#FFFFFF';
                 ctx.textAlign = 'center';
-                
                 const textX = canvas.width / 2;
-                const textY = canvas.height - 20;
+                const textY = canvas.height - 25;
                 ctx.shadowColor = "rgba(0,0,0,0.6)";
                 ctx.shadowBlur = 4;
                 ctx.shadowOffsetX = 1;
                 ctx.shadowOffsetY = 1;
-                ctx.fillText(`${nama}`, textX, textY);
-                ctx.shadowColor = "transparent";
+                ctx.fillText(nama, textX, textY);
+                ctx.shadowColor = 'transparent';
+
+                skeleton.style.display = 'none';
+                canvas.style.display   = 'block';
+                merchantBadge.style.display = 'block';
             };
         };
 
-        document.getElementById('downloadBtn').addEventListener('click', function() {
+        backgroundImg.onerror = () => {
+            canvas.width  = 700;
+            canvas.height = 700;
+            ctx.fillStyle = '#f8fafc';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            const qr = new QRious({
+                value: qrData,
+                size: 600,
+                level: 'H',
+                background: 'white',
+                foreground: 'black'
+            });
+
+            const qrImg = new Image();
+            qrImg.src = qr.toDataURL();
+            qrImg.onload = () => {
+                const qrX = 50;
+                const qrY = 50;
+                ctx.drawImage(qrImg, qrX, qrY);
+                drawLogoOnQR(ctx, qrX, qrY, qr.size);
+
+                skeleton.style.display = 'none';
+                canvas.style.display   = 'block';
+                merchantBadge.style.display = 'block';
+            };
+        };
+
+        function drawLogoOnQR(ctx, qrX, qrY, qrSize) {
+            const logoSize  = qrSize * 0.18;
+            const logoX     = qrX + (qrSize - logoSize) / 2;
+            const logoY     = qrY + (qrSize - logoSize) / 2;
+            const radius    = logoSize * 0.18;
+
+            ctx.save();
+
+            ctx.shadowColor   = 'rgba(0,0,0,0.25)';
+            ctx.shadowBlur    = 10;
+            ctx.shadowOffsetX = 0;
+            ctx.shadowOffsetY = 2;
+
+            roundRect(ctx, logoX, logoY, logoSize, logoSize, radius);
+            ctx.fillStyle = '#ffffff';
+            ctx.fill();
+
+            ctx.shadowColor = 'transparent';
+
+            roundRect(ctx, logoX, logoY, logoSize, logoSize, radius);
+            ctx.strokeStyle = 'rgba(0,0,0,0.06)';
+            ctx.lineWidth   = 2;
+            ctx.stroke();
+
+            const innerPad = logoSize * 0.12;
+            roundRect(ctx, logoX + innerPad, logoY + innerPad, logoSize - innerPad * 2, logoSize - innerPad * 2, radius * 0.6);
+            ctx.fillStyle = '#1a56db';
+            ctx.fill();
+
+            const fontSize = logoSize * 0.32;
+            ctx.font        = `bold ${fontSize}px "Outfit", "Segoe UI", Arial, sans-serif`;
+            ctx.fillStyle   = '#ffffff';
+            ctx.textAlign   = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('FR3', logoX + logoSize / 2, logoY + logoSize / 2);
+
+            ctx.restore();
+        }
+
+        function roundRect(ctx, x, y, w, h, r) {
+            ctx.beginPath();
+            ctx.moveTo(x + r, y);
+            ctx.lineTo(x + w - r, y);
+            ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+            ctx.lineTo(x + w, y + h - r);
+            ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+            ctx.lineTo(x + r, y + h);
+            ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+            ctx.lineTo(x, y + r);
+            ctx.quadraticCurveTo(x, y, x + r, y);
+            ctx.closePath();
+        }
+
+        document.getElementById('downloadBtn').addEventListener('click', function () {
             try {
-                const imageURL = canvas.toDataURL("image/png");
+                const imageURL = canvas.toDataURL('image/png');
                 const link = document.createElement('a');
                 link.href = imageURL;
                 link.download = `QRIS-${nama.replace(/\s+/g, '-')}.png`;
-                
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
             } catch (err) {
-                alert('Gagal mendownload! Pastikan file baseqr.jpg berada di server/domain yang sama.');
+                alert('Gagal mendownload. Pastikan file baseqr.jpg berada di server/domain yang sama.');
                 console.error(err);
             }
         });
